@@ -1,12 +1,26 @@
 #include <dpp/dpp.h>
+#include <fstream>
+#include <string>
 
-/* Be sure to place your token in the line below.
- * Follow steps here to get a token: https://dpp.dev/creating-a-bot-application.html
- * You will also need to fill in your guild id. When you invite the bot, be sure to
- * invite it with the scopes 'bot' and 'applications.commands', e.g.
- * https://discord.com/oauth2/authorize?client_id=940762342495518720&scope=bot+applications.commands&permissions=139586816064
- */
-const std::string    BOT_TOKEN    = "OTU3MzkwOTIxODc4NjMwNDU0.Yj-Fxw.1cIHs7-OAg-qE5sZyMiOIbCy2YA";
+using namespace std;
+
+string getToken() {
+    ifstream infile("../../../../WisdomBotToken.txt");
+    string key;
+
+    if (infile.good()) {
+        printf("%s\n", "blabla");
+        string key;
+        getline(infile, key);
+        cout << key << endl;
+        return key;
+    }
+    else {
+        cout << "Failed to open file\n";
+    }
+}
+
+const std::string BOT_TOKEN = getToken();
 const dpp::snowflake MY_GUILD_ID  = 957974039362678825;
 
 int main()
