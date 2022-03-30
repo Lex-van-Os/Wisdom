@@ -1,6 +1,7 @@
 #include <dpp/dpp.h>
 #include <fstream>
 #include <string>
+#include <random>
 
 using namespace std;
 
@@ -9,10 +10,7 @@ string getToken() {
     string key;
 
     if (infile.good()) {
-        printf("%s\n", "blabla");
-        string key;
         getline(infile, key);
-        cout << key << endl;
         return key;
     }
     else {
@@ -20,12 +18,55 @@ string getToken() {
     }
 }
 
+int getLines(string fileName) {
+    ifstream infile(fileName);
+    string quote;
+    int total_lines = 0;
+
+    if (infile.good()) {
+        while (getline(infile, quote)) {
+            ++total_lines;
+        }
+        return total_lines;
+    }
+    else {
+        cout << "Something went wrong...";
+    }
+}
+
 const std::string BOT_TOKEN = getToken();
 const dpp::snowflake MY_GUILD_ID  = 957974039362678825;
+const int QUOTE_LINES = getLines("../../../wisdomquotes.txt");
+
+string quote() {
+    std::random_device random_device;
+    std::mt19937 gen(random_device());
+    ifstream infile("../../../wisdomquotes.txt");
+    string quote;
+    int iterated_lines = 0;
+        
+    if (infile.good()) {
+        std::uniform_int_distribution<> distribute(0, QUOTE_LINES);
+        int picked_line = distribute(gen);
+
+        while (getline(infile, quote)) {
+            if (iterated_lines == picked_line) {
+                return quote;
+            }
+            else {
+                iterated_lines++;
+            }
+        }
+        return quote;
+    }
+    else {
+        return "Something went wrong...";
+    }
+}
 
 int main()
 {
-    /* Create bot cluster */
+
     dpp::cluster bot(BOT_TOKEN);
 
     /* Output simple log messages to stdout */
@@ -36,6 +77,9 @@ int main()
          if (event.command.get_command_name() == "ping") {
             event.reply("Pong!");
         }
+         if (event.command.get_command_name() == "quote") {
+             event.reply(quote());
+         }
     });
 
     /* Register slash command here in on_ready */
@@ -43,6 +87,7 @@ int main()
         /* Wrap command registration in run_once to make sure it doesnt run on every full reconnection */
         if (dpp::run_once<struct register_bot_commands>()) {
             bot.guild_command_create(dpp::slashcommand("ping", "Ping pong!", bot.me.id), MY_GUILD_ID);
+            bot.guild_command_create(dpp::slashcommand("quote", "A random inspiring quote", bot.me.id), MY_GUILD_ID);
         }
     });
 
